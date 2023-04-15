@@ -15,8 +15,8 @@ def wait():
     clear_screen()
 
 
-def attends():
-    time.sleep(1.5)
+def attend(temps=1):
+    time.sleep(temps)
 
 
 def header(couleur, titre):
