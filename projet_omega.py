@@ -40,6 +40,7 @@ def tour(liste_data_joueur):
             if mise_du_joueur < liste_data_joueur[0] and mise_du_joueur > 0:
                break
         except:
+            je
             pass
             
 
