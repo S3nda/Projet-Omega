@@ -1,6 +1,7 @@
 from modules import GUI
 import random
 
+
 def mise(joueur_data):
     while True:
         GUI.clear_screen()
@@ -40,6 +41,7 @@ def pari_nombre():
             pass
 
     return nombre_pari
+
 
 
 def result_roulette():
@@ -103,4 +105,4 @@ def passage_a_la_caisse(joueur_data, resultat):
         print("Dommage vous avez potentiellement perdu beaucoup d'argent")
 
 
-
+'''

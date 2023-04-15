@@ -28,10 +28,10 @@ def init_joueur():
     num_partie = + 1
 
     # nom du joueur
-    data.nom()  # fonction nom, :return: nom_joueur
+    nom_joueur = data.nom()  # fonction nom, :return: nom_joueur
 
     # mise maximale
-    data.mise_maximale()  # fonction mise_maximale(), :return: mise_max
+    mise_max = data.mise_maximale()  # fonction mise_maximale(), :return: mise_max
 
     joueur_data = {"nom": nom_joueur, "mise_max": mise_max, "date": date, "num_partie": num_partie}
     # on crée un dictionnaire avec les données du joueur : nom, mise, date, numéro de partie
