@@ -6,13 +6,13 @@ def mise(joueur_data):
     while True:
         GUI.clear_screen()
 
-        GUI.header(couleur='YELLOW', titre='EN JEU')
+        GUI.header(couleur='YELLOW', titre='EN JEU - MISE')
 
         try:
             mise_du_joueur = int(input(f'"Entrez votre mise, {joueur_data["nom"]} : '""))
-            if 0 < mise_du_joueur < joueur_data["mise_max"]:
+            if 0 < mise_du_joueur < joueur_data["argent_joueur"]:
                 return mise_du_joueur
-        except:
+        except ValueError:
             print("Mettez une mise supérieure à 0 et inférieure à votre mise maximale "
                   "(non, vous ne pouvez pas créer d'argent, désolé)")
 
@@ -21,7 +21,7 @@ def pari_choix(paris_possibles_type):
     while True:
         GUI.clear_screen()
 
-        GUI.header(couleur='YELLOW', titre='EN JEU')
+        GUI.header(couleur='YELLOW', titre='EN JEU - CHOIX DU PARI')
 
         pari = input("Choisissez votre pari (Pair/Impair/Rouge/Noir/Nombre) : ")
         if pari in paris_possibles_type:
@@ -30,18 +30,15 @@ def pari_choix(paris_possibles_type):
             print("Vous devez choisir un type de pari parmi ceux proposés")
 
 
-def pari_nombre():
+def choix_nombre():
     while True:
         try:
-            nombre_pari = int(input("Choisissez donc un nombre entre 0 et 36 : "))
-            if 0 <= nombre_pari <= 36:
-                break
-        except:
+            pari = int(input("Choisissez donc un nombre entre 0 et 36 : "))
+            if 0 <= pari <= 36:
+                return pari
+        except ValueError:
             print("Vous devez choisir un nombre entre 0 et 36")
             pass
-
-    return nombre_pari
-
 
 
 def result_roulette():
@@ -56,53 +53,38 @@ def result_roulette():
     couleur_numero = liste_vide[numero_aleatoire][1]
 
     print("Et la roulette s'arrête sur....")
-    GUI.attends()
+    GUI.attend()
     print(f"{numero_aleatoire} et {couleur_numero} !!!")
 
-    resultat = {'numero_aléatoire': numero_aleatoire, "couleur_numéro": couleur_numero}
+    resultat = {'numero_aleatoire': numero_aleatoire, "couleur_numéro": couleur_numero}
     return resultat
 
 
-def passage_a_la_caisse(joueur_data, resultat):
-    if liste_pari[2] == data_joueur[]:  # pour si resultat correcte pour nombre pile
-        print(f"Vous avez gagné! 🏆🏆 Vous avez donc gagnez {liste_data[0] * 36} €")
-        mise_max = joueur_data["mise max"] + liste_pari[0] * 35
-        print(f"Il vous reste {mise_max} €")
+def passage_a_la_caisse(pari, resultat, data_joueur):
+    argent_joueur = data_joueur['argent_joueur']
+    mise = pari['mise']
 
+    if pari['nombre'] == resultat['numero_aleatoire'] and pari['type'] == 'Nombre':
+        print(f"Vous avez gagné! 🏆🏆 Vous avez donc gagné {liste_data[0] * 36} €")
+        data_joueur['argent_joueur'] += pari['mise'] * 35
+        print(f"Il vous reste {data_joueur['argent_joueur']} €")
 
-    elif resultat["numéro aléatoire"] == liste_pari[1]:  # pour si resultat correcte pour couleur
+    elif pari['type'] == resultat['couleur_numero'] and pari['type'] in ['Rouge', 'Noir']:
         print(f"Vous avez gagné! 🏆🏆 Vous gagnez donc {liste_data[0] * 2} €")
-        mise_max = joueur_data["mise max"] + liste_pari[0]
-        print(f"Il vous reste {mise_max} €")
+        data_joueur['argent_joueur'] += pari['mise']
+        print(f"Il vous reste {data_joueur['argent_joueur']} €")
 
-
-    elif numero_aleatoire // 2 == 0 and pari == "Pair":  # pour si resultat correcte <-----  pour parité du nombre
+    elif pari['type'] == 'Pair' and resultat['numero_aleatoire'] % 2 == 0:
         print(f"Vous avez gagné! 🏆🏆 Vous gagnez donc {liste_data[0] * 2} €")
-        mise_max = joueur_data["mise max"] + liste_pari[0]
-        print(f"Il vous reste {mise_max} €")
+        data_joueur['argent_joueur'] += pari['mise']
+        print(f"Il vous reste {data_joueur['argent_joueur']} €")
 
-
-    elif numero_aleatoire // 2 == 1 and pari == "Impair":
+    elif pari['type'] == 'Impair' and resultat['numero_aleatoire'] % 2 == 1:
         print(f"Vous avez gagné! 🏆🏆 Vous gagnez donc {liste_data[0] * 2} €")
-        mise_max = joueur_data["mise max"] + liste_pari[0]
-        print(f"Il vous reste {mise_max} €")
-
-    elif numero_aleatoire == 0 and not nombre_parier == numero_aleatoire:
-        print(f"Vous avez gagné! 🏆🏆 Vous gagnez donc {liste_data[0] * 1.5} €")
-        mise_max = joueur_data["mise max"] + liste_pari[0]
-        print(f"Il vous reste {mise_max} €")
+        data_joueur['argent_joueur'] += pari['mise']
+        print(f"Il vous reste {data_joueur['argent_joueur']} €")
 
     else:  # pour s'il a faux
         print(f"Dommage! Vous avez perdu 😭😭. Vous avez donc perdu {liste_data[0]}")
-        mise_max = joueur_data["mise max"] - liste_pari[0]
-        print(f"Il vous reste {mise_max} €")
-
-    nouvelle_partie = input("Voulez-vous rejouer un partie(y/n) : ")
-    if nouvelle_partie == "y":
-        print("C'est reparti pour ...")
-        roulette_solo(mise_max)
-    else:
-        print("Dommage vous avez potentiellement perdu beaucoup d'argent")
-
-
-'''
+        data_joueur['argent_joueur'] -= pari['mise']
+        print(f"Il vous reste {data_joueur['argent_joueur']} €")

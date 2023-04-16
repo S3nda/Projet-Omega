@@ -92,7 +92,7 @@ def simulation_menu():
 
         GUI.options_listees('Simulation', 'Réglages', 'Retour')
 
-        choix = input("Veuillez sélectionner parmi (1/2/3/4) : \n")
+        choix = input("Veuillez sélectionner parmi (1/2/3) : \n")
 
         if choix == '1':  # commencer la simulation
             sim.simulation()
