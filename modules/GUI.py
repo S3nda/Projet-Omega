@@ -22,8 +22,8 @@ def attend(temps=1):
 def header(couleur, titre):
     try:
         terminal_size = os.get_terminal_size()  # récupère la taille du terminal via la librairie os
-    except:
-        terminal_size = (100, 100) # si erreur, on met une taille par défaut
+    except OSError:
+        terminal_size = (100, 100)  # si erreur, on met une taille par défaut
     header_length = terminal_size[0] - 2
 
     left_margin = (header_length - len(titre)) // 2
@@ -34,6 +34,7 @@ def header(couleur, titre):
                        f'{" " * right_margin}'f'{colorama.Style.RESET_ALL}\n'
                        f'{getattr(colorama.Fore, couleur)}[{"-" * header_length}]{colorama.Style.RESET_ALL}')
     print(header_roulette)
+    print("\n")
 
 
 def options_listees(*options):

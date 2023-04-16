@@ -16,97 +16,97 @@ import datetime
 
 # premiere fois que le logiciel est lancé
 
-def init_joueur(init, joueur_data):
-    if init:
-        num_entree = 1
-        nom_joueur = data.nom()
+
+def solo():
+    joueurs = {}
+    nom_joueur = data.nom()
+
+    if nom_joueur not in joueurs:
+        nouveau_joueur = Joueur(nom_joueur)
+        nouveau_joueur.entree()
+        print(f'{nom_joueur}... Enchanté !')
+        GUI.attend(1)
+        joueurs[nom_joueur] = nouveau_joueur
+        nouveau_joueur.mise_max()
+        while True:
+            nouveau_joueur.tour()
+            jeu.continuer(nouveau_joueur.argent)
+            if jeu.continuer(nouveau_joueur.argent):
+                nouveau_joueur.tour()
+            else:
+                exit()
     else:
-        num_entree = + 1
-        nom_joueur = joueur_data['nom']
+        joueur_habitue = nom_joueur
+        joueur_habitue.entree()
+        print("Ah oui, c'est bien toi  !")
+        GUI.attend(1)
+        print("On fait comme d'habitude alors...")
+        joueur_habitue.mise_max()
+        while True:
+            joueur_habitue.tour()
 
-    # date à laquelle le joueur commence sa session de jeu
-    date = datetime.datetime.now()
-
-    num_tour = 0  # numéro de tour
-
-    # mise maximale
-    mise_max = data.mise_maximale(nom_joueur)
-    # fonction mise_maximale(), :return: mise_max
-
-    joueur_data = {"nom": nom_joueur, "argent_joueur": mise_max, "date": date, "num_entree": num_entree,
-                   "num_tour": num_tour}
-    # on crée un dictionnaire avec les données du joueur : nom, mise, date, numéro de partie
-    return joueur_data
-
-
-def tour(joueur_data):
-    jeu.mise(joueur_data)
-
-    pari_types = ["Pair", "Impair", "Rouge", "Noir", "Nombre"]
-    jeu.pari_choix(pari_types)
-
-    jeu.result_roulette()
-
-    if pari == "Nombre":
-        jeu.nombre_pari()
-
-    return liste_parier
+            jeu.continuer(joueur_habitue.argent)
+            if jeu.continuer(joueur_habitue.argent):
+                joueur_habitue.tour()
+            else:
+                print("éteins la lumière quand tu sors !")
+                exit()
 
 
-def roulette_solo(joueur_data):
-    data_initiale = joueur_data
-    while True:
-        jeu.mise(joueur_data)
+class Joueur:
+    def __init__(self, nom):
+        self.nom = nom
+        self.date = datetime.datetime.now()
+        self.num_entree = 0
+        self.argent_debut = 0
+        self.argent = None
+        self.num_tour = 0
+        self.resultat = None
+        self.pari = None
+        self.mise = None
+        self.gain_session = None
 
-        pari_types = ["Pair", "Impair", "Rouge", "Noir", "Nombre"]
-        pari = jeu.pari_choix(pari_types)
-        if pari == "Nombre":
-            pari = jeu.choix_nombre()
-        else:
-            pari = pari
-            pass
-        resultat = jeu.result_roulette()
-        jeu.passage_a_la_caisse(resultat, joueur_data, pari)
+    def entree(self):
+        self.num_entree = + 1
+        pass
 
-        continuer = input("Voulez-vous continuer à jouer ? (O/N) ")
-        if continuer.lower() == 'o':
-            joueur_data['num_partie'] = + 1
-            gain_brut = joueur_data['argent_joueur'] - data_initiale['argent_joueur']
-            continue
-        else:
-            gain_moyen = gain_brut / joueur_data['num_partie']
-            # Sinon, on quitte le jeu
-            GUI.clear_screen()
-            GUI.header(couleur='YELLOW', titre='MERCI D\'AVOIR JOUÉ')
-            print(f"Nom du joueur: {joueur_data['nom']}")
-            print(f"Mise maximale: {joueur_data['mise_max']} €")
-            print(f"Date: {joueur_data['date'].strftime('%d/%m/%Y %H:%M:%S')}")
-            print(f"Numéro de partie: {joueur_data['num_partie']}")
-            print("A bientôt !")
-            break
+    def mise_max(self):
+        self.argent = data.mise_maximale(self.nom)
+        pass
 
+    def mise(self):
+        self.mise = jeu.mise(self.argent, self.nom)
+        pass
 
-def solo(init=True):
-    clients_uniques = {}
-    if init:
-        joueur_data = init_joueur(init=True, joueur_data={})    # renvoie un dictionnaire avec les données du joueur
-        clients_uniques[joueur_data['nom']] = joueur_data   # on ajoute le dictionnaire du joueur
-        # dans le dictionnaire des clients uniques
-        roulette_solo(joueur_data)  # on lance la partie
+    def pari_choix(self):
+        self.pari = jeu.pari_choix(["Pair", "Impair", "Rouge", "Noir", "Nombre"])
+        pass
 
-    else:
-        nom_joueur = data.nom()
-        for joueur in clients_uniques:
-            if nom_joueur == clients_uniques[joueur]['nom']:
-                joueur_data = clients_uniques[joueur]
-                print("Ah oui, c'est bien toi  !")
-                GUI.attend(1)
-                print("On fait comme d'habitude alors...")
+    def choix_nombre(self):
+        self.pari = jeu.choix_nombre()
+        pass
 
-                joueur_data = init_joueur(init=False, joueur_data=joueur_data)
-                roulette_solo(joueur_data)
+    def result_roulette(self):
+        self.resultat = jeu.result_roulette()
+        pass
 
+    def passage_a_la_caisse(self):
+        self.argent, self.pari, self.resultat, = jeu.passage_a_la_caisse(self.pari, self.resultat, self.mise, self.argent)
+        pass
 
+    def tour(self):
+        self.argent_debut = self.argent
+        self.num_tour = + 1
+        self.mise = jeu.mise(self.argent, self.nom)
+        self.pari = jeu.pari_choix(["pair", "impair", "rouge", "noir", "nombre"])
+        print("Voulez vous parier sur autre chose ?")
+        if self.pari['type'] == "nombre":
+            self.pari = jeu.choix_nombre()
+        self.resultat = jeu.result_roulette()
+        GUI.attend(1)
+        jeu.passage_a_la_caisse(self.pari, self.resultat, self.mise, self.argent)
+        self.gain_session = self.argent - self.argent_debut
+        GUI.attend(3)
 
 
 def multi():
@@ -114,7 +114,6 @@ def multi():
 
 
 def regles():
-    """Menu des règles, permet de lister les règles de la roulette"""
     GUI.clear_screen()
     header_et_body_regles = ('\n'
                              '    [-----------------------------------------------------------------------------]\n'
