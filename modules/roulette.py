@@ -30,11 +30,13 @@ def solo():
         nouveau_joueur.mise_max()
         while True:
             nouveau_joueur.tour()
-            jeu.continuer(nouveau_joueur.argent)
-            if jeu.continuer(nouveau_joueur.argent):
+            jeu.continuer(nouveau_joueur.argent, nouveau_joueur.nom)
+            if jeu.continuer(nouveau_joueur.argent, nouveau_joueur.nom):
                 nouveau_joueur.tour()
             else:
-                exit()
+                print(nouveau_joueur.stats())
+                GUI.attend(2)
+                menu_principal()
     else:
         joueur_habitue = nom_joueur
         joueur_habitue.entree()
@@ -42,15 +44,17 @@ def solo():
         GUI.attend(1)
         print("On fait comme d'habitude alors...")
         joueur_habitue.mise_max()
+        joueur_habitue.debut()
         while True:
             joueur_habitue.tour()
 
-            jeu.continuer(joueur_habitue.argent)
-            if jeu.continuer(joueur_habitue.argent):
+            jeu.continuer(joueur_habitue.argent, joueur_habitue.nom)
+            if jeu.continuer(joueur_habitue.argent, joueur_habitue.nom):
                 joueur_habitue.tour()
             else:
-                print("éteins la lumière quand tu sors !")
-                exit()
+                print(joueur_habitue.stats())
+                GUI.attend(2)
+                menu_principal()
 
 
 class Joueur:
@@ -58,12 +62,14 @@ class Joueur:
         self.nom = nom
         self.date = datetime.datetime.now()
         self.num_entree = 0
-        self.argent_debut = 0
-        self.argent = None
         self.num_tour = 0
+        self.mise_totale = 0
+        self.argent_debut = None
+        self.argent = None
         self.resultat = None
         self.pari = None
         self.mise = None
+        self.gain_tour = None
         self.gain_session = None
 
     def entree(self):
@@ -74,38 +80,31 @@ class Joueur:
         self.argent = data.mise_maximale(self.nom)
         pass
 
-    def mise(self):
-        self.mise = jeu.mise(self.argent, self.nom)
-        pass
-
-    def pari_choix(self):
-        self.pari = jeu.pari_choix(["Pair", "Impair", "Rouge", "Noir", "Nombre"])
-        pass
-
-    def choix_nombre(self):
-        self.pari = jeu.choix_nombre()
-        pass
-
-    def result_roulette(self):
-        self.resultat = jeu.result_roulette()
-        pass
-
-    def passage_a_la_caisse(self):
-        self.argent, self.pari, self.resultat, = jeu.passage_a_la_caisse(self.pari, self.resultat, self.mise, self.argent)
-        pass
+    def stats(self):
+        return {
+            'nom': self.nom,
+            "nombre d'entrées": self.num_entree,
+            'argent moyen dépensé par session': self.mise_totale / self.num_entree,
+            'argent dépensé au total': self.mise_totale,
+            'mise moyenne par tour': self.mise_totale / self.num_tour,
+            'gain par session': self.gain_session,
+        }
 
     def tour(self):
         self.argent_debut = self.argent
         self.num_tour = + 1
         self.mise = jeu.mise(self.argent, self.nom)
+        self.mise_totale = self.mise_totale + self.mise
         self.pari = jeu.pari_choix(["pair", "impair", "rouge", "noir", "nombre"])
         print("Voulez vous parier sur autre chose ?")
         if self.pari['type'] == "nombre":
             self.pari = jeu.choix_nombre()
         self.resultat = jeu.result_roulette()
         GUI.attend(1)
-        jeu.passage_a_la_caisse(self.pari, self.resultat, self.mise, self.argent)
-        self.gain_session = self.argent - self.argent_debut
+        self.argent = jeu.passage_a_la_caisse(self.pari, self.resultat, self.mise, self.argent)
+        self.gain_tour = self.argent - self.argent_debut
+        self.gain_session = self.gain_tour + self.gain_tour
+
         GUI.attend(3)
 
 
@@ -115,19 +114,9 @@ def multi():
 
 def regles():
     GUI.clear_screen()
-    header_et_body_regles = ('\n'
-                             '    [-----------------------------------------------------------------------------]\n'
-                             '                                |REGLES DE LA ROULETTE|                             \n'
-                             '\n'
-                             'Le joueur peut                             \n'
-                             '                                |REGLES DE LA ROULETTE|                             \n'
-                             '                                |REGLES DE LA ROULETTE|                             \n'
-                             '                                |REGLES DE LA ROULETTE|                             \n'
-                             '                                |REGLES DE LA ROULETTE|                             \n'
-                             '    [-----------------------------------------------------------------------------]\n')
-    print(header_et_body_regles)  # print le header ainsi que le body du menu REGLES DE LA ROULETTE
-    print('1) RETOUR\n')  # print les options du menu
 
+    GUI.header('YELLOW', 'ROULETTE - REGLES')
+    GUI.body('YELLOW', '')
     while True:  # choix des options
         choix = input("Entrez 1 pour revenir en arrière: \n")  # input du choix
         if choix != '1':

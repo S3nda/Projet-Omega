@@ -60,4 +60,37 @@ def menu_principal():
     print(C118)  # logo du casino avec message de bienvenue
 
 
+def body(couleur, texte):
+    try:
+        terminal_size = os.get_terminal_size()  # récupère la taille du terminal via la librairie os
+    except OSError:
+        terminal_size = (100, 100)  # si erreur, on met une taille par défaut
+    header_length = terminal_size[0] - 2
 
+    for ligne in texte:
+        left_margin = (header_length - len(ligne)) // 2
+        right_margin = header_length - len(ligne) - left_margin
+
+        body_line = (f'{getattr(colorama.Fore, couleur)}|{" " * left_margin}{ligne}'
+                     f'{" " * right_margin}|{colorama.Style.RESET_ALL}')
+        print(body_line)
+
+    print("\n")
+
+
+def body_game_over():
+    GAME_OVER = ('\n'
+                 '┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼'
+                 '███▀▀▀██┼███▀▀▀███┼███▀█▄█▀███┼██▀▀▀'
+                 '██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼█┼┼┼██┼██┼┼┼'
+                 '██┼┼┼▄▄▄┼██▄▄▄▄▄██┼██┼┼┼▀┼┼┼██┼██▀▀▀'
+                 '██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██┼┼┼'
+                 '███▄▄▄██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██▄▄▄'
+                 '┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼'
+                 '███▀▀▀███┼▀███┼┼██▀┼██▀▀▀┼██▀▀▀▀██▄┼'
+                 '██┼┼┼┼┼██┼┼┼██┼┼██┼┼██┼┼┼┼██┼┼┼┼┼██┼'
+                 '██┼┼┼┼┼██┼┼┼██┼┼██┼┼██▀▀▀┼██▄▄▄▄▄▀▀┼'
+                 '██┼┼┼┼┼██┼┼┼██┼┼█▀┼┼██┼┼┼┼██┼┼┼┼┼██┼'
+                 '███▄▄▄███┼┼┼─▀█▀┼┼─┼██▄▄▄┼██┼┼┼┼┼██▄'
+                 '\n')
+    print(GAME_OVER)

@@ -24,7 +24,7 @@ def pari_choix(paris_possibles_type):
 
         GUI.header(couleur='YELLOW', titre='EN JEU - CHOIX DU TYPE DE PARI')
 
-        choix_pari = input("Choisissez votre pari (Pair/Impair/Rouge/Noir/Nombre) : ").lower()
+        choix_pari = input("Tu choisis de parier sur quoi d'abord ? (Pair/Impair/Rouge/Noir/Nombre) : ").lower()
         pari = {'type': choix_pari}
 
         if choix_pari in paris_possibles_type:
@@ -40,7 +40,7 @@ def choix_nombre():
 
         GUI.header(couleur='YELLOW', titre='EN JEU - CHOIX DU NOMBRE')
         try:
-            choix_pari = int(input("Choisissez donc un nombre entre 0 et 36 : "))
+            choix_pari = int(input("Choisis donc un nombre entre 0 et 36 : "))
             if 0 <= choix_pari <= 36:
                 pari = {'choix_pari': choix_pari, 'type': 'nombre'}
                 return pari
@@ -82,32 +82,34 @@ def passage_a_la_caisse(pari, resultat, mise, argent):
     GUI.header(couleur='YELLOW', titre='EN JEU - PASSAGE À LA CAISSE')
 
     if pari['type'] == resultat['numero_aleatoire'] and pari['type'] == 'nombre':
-        print(f"J A C K P O T! Vous gagnez {mise * 36} €")
+        print(f"J A C K P O T! Tu gagnes {mise * 36} €")
         argent += mise * 35
         print(f"Il vous reste {argent} €")
     elif pari['type'] == resultat['couleur_numero'] and pari['type'] in ['rouge', 'noir']:
-        print(f"La chance vous a souri! Vous gagnez {mise * 2} €")
+        print(f"La chance vous a souri! Tu gagnes {mise * 2} €")
         argent += mise
         print(f"Il vous reste {argent} €")
     elif pari['type'] == 'pair' and resultat['numero_aleatoire'] % 2 == 0:
-        print(f"La chance vous a souri! Vous gagnez {mise * 2} €")
+        print(f"La chance vous a souri! Tu gagnes {mise * 2} €")
         argent += mise
         print(f"Il vous reste {argent} €")
     elif pari['type'] == 'impair' and resultat['numero_aleatoire'] % 2 == 1:
-        print(f"La chance vous a souri ! Vous gagnez {mise * 2} €")
+        print(f"La chance vous a souri ! Tu gagnes {mise * 2} €")
         argent += mise
         print(f"Il vous reste {argent} €")
 
     else:  # pour s'il a faux
-        print(f"Aïe! Vous perdez {mise}€")
+        print(f"Aïe! tu perds {mise}€")
         argent -= mise
-        print(f"Il vous reste {argent} €")
+        print(f"Il te reste {argent} €")
+    return argent
 
 
-def continuer(argent_joueur):
-    print(f"Vous avez {argent_joueur} €")
+def continuer(nom, argent_joueur):
+    print(f'Tu as maintenant {argent_joueur} € ! Voyons voir...')
+    GUI.attend()
     if argent_joueur == 0:
-        print("C la desh")
+        print(f"Mmmh... Désolé,{nom}, mais tu n'as plus d'argent.")
         return False
     else:
         while True:
