@@ -98,31 +98,42 @@ def result_roulette():
     return resultat
 
 
-def passage_a_la_caisse(mise, resultat, argent, choix):
+def passage_a_la_caisse(mise, resultat, argent, choix, nom):
     GUI.clear_screen()
 
     GUI.header(couleur='YELLOW', titre='EN JEU - PASSAGE À LA CAISSE')
 
     if choix == resultat['numero_aleatoire']:
+        print(f"Pour toi, {Fore.YELLOW}{nom}{Fore.RESET}, {Fore.GREEN}+{mise*35} €{Fore.RESET}")
         argent += mise * 36
     if choix == resultat['couleur_numero']:
+        print(f"Pour toi, {Fore.YELLOW}{nom}{Fore.RESET}, {Fore.GREEN}+{mise} €{Fore.RESET}")
         argent += mise*2
     if resultat['numero_aleatoire'] == 0 and choix != 0 and choix != 'pair':
+        print(f"Pour toi, {Fore.YELLOW}{nom}{Fore.RESET}, {Fore.GREEN}+{mise*0.5} €{Fore.RESET}")
         argent += mise*1.5
     if resultat['numero_aleatoire'] % 2 == 0:
+        print(f"Pour toi, {Fore.YELLOW}{nom}{Fore.RESET}, {Fore.GREEN}+{mise} €{Fore.RESET}")
         if choix == 'pair':
             argent += mise*2
     if resultat['numero_aleatoire'] % 2 == 1:
+        print(f"Pour toi, {Fore.YELLOW}{nom}{Fore.RESET}, {Fore.GREEN}+{mise} €{Fore.RESET}")
         if choix == 'impair':
             argent += mise*2
     else:  # pour s'il a faux
+        print(f"Pour toi, {Fore.YELLOW}{nom}{Fore.RESET}, {Fore.RED}-{mise} €{Fore.RESET}")
         pass
     return argent
 
 
 def continuer(nom, argent_joueur, mode):
-    print(f'Tu as maintenant {argent_joueur} € ! Voyons voir...')
+    GUI.clear_screen()
+
+    GUI.header(couleur='YELLOW', titre='EN JEU - BILAN')
+
+    print(f'{Fore.YELLOW}{nom}{Style.RESET_ALL}, Tu as maintenant {argent_joueur} € ! Voyons voir...')
     GUI.attend()
+
     if argent_joueur != 0:
         while True:
             GUI.clear_screen()
@@ -137,7 +148,7 @@ def continuer(nom, argent_joueur, mode):
                 print("Tu dois répondre par O ou N")
                 GUI.attend()
     else:
-        print(f"Mmmh... Désolé, {nom}, mais tu n'as plus d'argent.")
+        print(f"Mmmh... Désolé, {Fore.YELLOW}{nom}{Style.RESET_ALL}, {Fore.RED}mais tu n'as plus d'argent.{Style.RESET_ALL}")
         GUI.attend()
         if mode == 'solo':
             GUI.body_game_over()
@@ -180,7 +191,7 @@ def mise_maximale(nom_joueur):
             elif mise_max < 0:
                 print("Ah oui, vaut mieux pas gagner le gros lot avec une telle somme...")
                 GUI.attend()
-                print("Bon, sérieusement, je veux un nombre positif, s'il te plait.")
+                print(f"Bon, sérieusement, je veux un {Fore.YELLOW}nombre positif{Fore.RESET}, s'il te plait.")
             elif len(str(mise_max).split('.')[1]) > 2:
                 print("Non, non, non, j'vais pas passer la nuit à compter les mili..mili-centimes...")
         except ValueError:
@@ -207,7 +218,7 @@ def re_parier(argent):
             else:
                 print("Tu dois répondre par (O/N)")
         else:
-            print("Désolé, mais tu ne peux plus reparier...")
+            print(f"{Fore.RED}Désolé, mais tu ne peux plus reparier...{Fore.RESET}")
             GUI.attend()
             return False
 

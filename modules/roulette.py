@@ -4,12 +4,14 @@ from main import menu_principal
 #   fonctions primaires du module roulette
 from modules import jeu, data, GUI
 
+from colorama import Fore, Style
+
 
 def session_solo():
     nom_joueur = jeu.nom('solo')
     joueur = Joueur(nom_joueur)
     joueur.entree()
-    print(f'{nom_joueur}... Enchanté !')
+    print(f'{Fore.YELLOW}{nom_joueur}{Style.RESET_ALL}... Enchanté !')
     GUI.attend()
     joueur.mise_max()
     while True:
@@ -68,7 +70,7 @@ class Joueur:
         self.re_parier = True
 
     def entree(self):
-        self.num_entree = + 1
+        self.num_entree += 1
         pass
 
     def mise_max(self):
@@ -88,7 +90,7 @@ class Joueur:
         for choix in self.pari:     # pour chaque pari, on va modifier l'argent du joueur
             # via la fonction passage_a_la_caisse
             self.argent_total += self.pari[choix]
-            self.argent = jeu.passage_a_la_caisse(self.pari[choix], resultat, self.argent, choix)
+            self.argent = jeu.passage_a_la_caisse(self.pari[choix], resultat, self.argent, choix, self.nom)
         self.pari = {}      # on réinitialise les paris pour pouvoir en refaire au prochain tour
         self.gain_tour = self.argent - self.argent_debut    # on calcule le gain du tour grâce à
         # l'argent du début et de la fin du tour

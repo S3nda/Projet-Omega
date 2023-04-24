@@ -69,19 +69,23 @@ def statistiques_menu():
 
         GUI.header(couleur='CYAN', titre='STATISTIQUES')
 
-        GUI.options_listees('Voir les statistiques', 'Retour')
+        GUI.options_listees('Stats des joueurs', 'Stats du casino', 'Retour')
 
-        choix = input("Veuillez sélectionner parmi (1/2) : \n")
+        choix = input("Veuillez sélectionner parmi (1/2/3) : \n")
 
-        if choix == '1':  # Stats du mode solo, appelle la fonction solo() du module stats
-            stats.show()
+        if choix == '1':  # Stats du mode solo, pour rechercher un joueur
+            stats.show('joueur')
             break
 
         elif choix == '2':  # Retour au menu roulette, appelle la fonction roulette_main()
+            stats.show('casino')
+            break
+
+        elif choix == '3':  # Retour au menu roulette, appelle la fonction roulette_main()
             menu_principal()
             break
         else:  # mauvais input, on recommence (while True), pas de break
-            print('⚠    Seuls choix possibles sont (1/2) et non des lettres ou autres    ⚠')
+            print('⚠    Seuls choix possibles sont (1/2/3) et non des lettres ou autres    ⚠')
             GUI.attend()
 # fonction implémentée pour le menu principal ✅
 
@@ -122,7 +126,7 @@ def menu_principal():
 
         GUI.options_listees('Roulette', 'Statistiques', 'Simulation', 'Quitter')
 
-        choix = input("\nChoisissez le mode, ou quittez le programme (1/2/3/4) : \n")
+        choix = input("\nChoisis le mode, ou quitte le programme (1/2/3/4) : \n")
 
         if choix == '1':
             roulette_menu()  # appelle la fonction roulette_main(), qui permet de choisir entre solo, multi, ou regles
@@ -131,8 +135,7 @@ def menu_principal():
             statistiques_menu()  # appelle la fonction statistiques_main(), qui permet de choisir entre solo, multi,
             # ou archives
             break
-        elif choix == '3':  # appelle la fonction simulation_main(), qui permet de choisir entre solo, multi,
-            # ou archives
+        elif choix == '3':  # appelle la fonction simulation_main(), qui permet de choisir entre solo ou multi
             simulation_menu()
             break
         elif choix == '4':  # quitte le programme, avec un petit message de départ :D

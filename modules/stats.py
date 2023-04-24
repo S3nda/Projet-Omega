@@ -6,11 +6,11 @@ def stats_casino():
     while True:
         GUI.clear_screen()
 
-        GUI.header('BLUE','STATISTIQUES - CASINO')
+        GUI.header('CYAN','STATISTIQUES - CASINO')
         reponse = input("Veux-tu voir les stats casino ? (O/N)\n").lower()
         if reponse == 'o':
             return True
-        elif reponse == 'n' :
+        elif reponse == 'n':
             return False
         else:
             print("Réponds par O ou N")
@@ -28,25 +28,26 @@ def recherche():
             return None
 
 
-def pres_stats_casino(stats):
-    for clee in stats:
-        print('nombre de joueurs uniques: ')
-        print(f"chiffre d'affaire:")
-        print('bénéfices net :')
-
-
-def show():
+def show(mode):
     while True:
         GUI.clear_screen()
 
         GUI.header(couleur='CYAN', titre="STATISTIQUES - EN COURS D'ANALYSE")
 
-        stats_joueur = recherche()
-        if stats_joueur is not None:
-            data.pres_stats_joueur(stats_joueur)
-        GUI.attend(2)
-        if input("\nAppuyez sur une touche pour refaire une recherche, ou entrez O pour revenir :\n").lower() == 'o':
-            main.menu_principal()
+        if mode == 'joueur':
+            stats_joueur = recherche()
+            if stats_joueur is not None:
+                data.pres_stats_joueur(stats_joueur)
+            GUI.attend(2)
+            if input("\nAppuyez sur entrée pour refaire une recherche, ou entrez N pour revenir :\n").lower() == 'n':
+                main.menu_principal()
 
-# fonction pratique implémentée pour le menu STATISTIQUES ✅
-
+        elif mode == 'casino':
+            stats_casino = data.stats_casino()
+            if stats_casino is not None:
+                data.pres_stats_casino(stats_casino)
+            else:
+                print("Aucun joueur n'a encore fréquenté le casino...\n")
+            GUI.attend(2)
+            if input("\nAppuyez sur entrée pour refaire une recherche, ou entrez N pour revenir :\n").lower() == 'n':
+                main.menu_principal()
