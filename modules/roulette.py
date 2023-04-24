@@ -16,9 +16,9 @@ def session_solo():
         joueur.paris()
         result_roulette = jeu.result_roulette()
         joueur.resultats(result_roulette)
-        if not jeu.continuer(joueur.nom, joueur.argent):
+        if not jeu.continuer(joueur.nom, joueur.argent, 'solo'):
             break
-        data.crea_dico_dans_csv(joueur.stats())
+    data.crea_dico_dans_csv(joueur.stats())
     GUI.attend()
     menu_principal()
 
@@ -35,7 +35,7 @@ def session_multi():
         result = jeu.result_roulette()
         for joueur in joueurs:
             joueur.resultats(result)
-        joueurs = [joueur for joueur in joueurs if jeu.continuer(joueur.nom, joueur.argent)]
+        joueurs = [joueur for joueur in joueurs if jeu.continuer(joueur.nom, joueur.argent, 'multi')]
     for joueur in joueurs_temp:     # on sauvegarde les stats de tous les joueurs
         data.crea_dico_dans_csv(joueur.stats())
     print("il n'y a à présent plus personne...")
@@ -54,9 +54,11 @@ class Joueur:
         stats = data.search_nom(nom)
         if stats is not None:
             self.nom, self.num_entree, self.nbr_tour_total, self.argent_total, self.gain_total, self.premiere_entree = stats.values()
+            #   on va chercher les stats du joueur dans le csv
         else:
             self.nom, self.num_entree, self.nbr_tour_total, self.argent_total, self.gain_total, self.premiere_entree = data.default().values()
             self.nom = nom
+            #   si on ne trouve pas le joueur, on lui attribue des stats par défaut
         self.mise_tour = 0
         self.argent_debut = None
         self.argent = None
@@ -74,20 +76,22 @@ class Joueur:
         pass
 
     def paris(self):
-        self.argent_debut = self.argent
+        self.argent_debut = self.argent     # on sauvegarde l'argent du joueur au début du tour (utilisé à la l.92)
         self.nbr_tour_total += 1
         self.re_parier = True
-        while self.re_parier:
+        while self.re_parier:   # tant que le joueur veut parier, on continue
             self.pari, self.argent = jeu.pari_choix(self.pari, self.argent, self.nom)
             self.re_parier = jeu.re_parier(self.argent)
-        jeu.resume_pari(self.pari)
+        jeu.resume_pari(self.pari)  # on affiche le résumé des paris
 
     def resultats(self, resultat):
-        for choix in self.pari:
+        for choix in self.pari:     # pour chaque pari, on va modifier l'argent du joueur
+            # via la fonction passage_a_la_caisse
             self.argent_total += self.pari[choix]
             self.argent = jeu.passage_a_la_caisse(self.pari[choix], resultat, self.argent, choix)
-        self.pari = {}
-        self.gain_tour = self.argent - self.argent_debut
+        self.pari = {}      # on réinitialise les paris pour pouvoir en refaire au prochain tour
+        self.gain_tour = self.argent - self.argent_debut    # on calcule le gain du tour grâce à
+        # l'argent du début et de la fin du tour
         self.gain_total += self.gain_tour
         GUI.attend()
 

@@ -20,12 +20,11 @@ def stats_casino():
 def recherche():
     while True:
         nom = input("Qui voulez vous rechercher ? : \n")
-        try:
-            stats = data.search_nom(nom)
-            return stats
-        except KeyError:
+        trouve = data.search_nom(nom)
+        if trouve:
+            return trouve
+        else:
             print(f"{nom} n'a jamais fréquenté le casino...\n")
-            GUI.attend()
             return None
 
 

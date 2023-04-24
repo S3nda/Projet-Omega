@@ -120,7 +120,7 @@ def passage_a_la_caisse(mise, resultat, argent, choix):
     return argent
 
 
-def continuer(nom, argent_joueur):
+def continuer(nom, argent_joueur, mode):
     print(f'Tu as maintenant {argent_joueur} € ! Voyons voir...')
     GUI.attend()
     if argent_joueur != 0:
@@ -139,7 +139,8 @@ def continuer(nom, argent_joueur):
     else:
         print(f"Mmmh... Désolé, {nom}, mais tu n'as plus d'argent.")
         GUI.attend()
-        GUI.body_game_over()
+        if mode == 'solo':
+            GUI.body_game_over()
         GUI.attend()
         return False
 
@@ -152,7 +153,7 @@ def nom(nbr_joueurs):
         # checks if the string contains only letters, numbers and underscores
         nom_joueur = input(f"{('Joueur' + str(nbr_joueurs)) if nbr_joueurs!='solo' else 'Alors ?'}, Comment "
                            f"t'appelles-tu ?\n")
-        if 10 > len(nom_joueur) > 0 and " " not in nom_joueur and re.match(r'^[a-zA-Z0-9_]*$', nom_joueur):
+        if 15 > len(nom_joueur) > 0 and " " not in nom_joueur and re.match(r'^[a-zA-Z0-9_]*$', nom_joueur):
             # si le nom est bon, on sort de la boucle
             return nom_joueur
         else:  # si le nom n'est pas bon, on passe à la prochaine itération
@@ -180,7 +181,6 @@ def mise_maximale(nom_joueur):
                 print("Ah oui, vaut mieux pas gagner le gros lot avec une telle somme...")
                 GUI.attend()
                 print("Bon, sérieusement, je veux un nombre positif, s'il te plait.")
-
             elif len(str(mise_max).split('.')[1]) > 2:
                 print("Non, non, non, j'vais pas passer la nuit à compter les mili..mili-centimes...")
         except ValueError:

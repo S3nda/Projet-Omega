@@ -9,23 +9,33 @@ import datetime
 def search_nom(nom):
     '''Recherche un joueur dans le fichier stats.csv, grâce à pandas'''
     path_fichier = os.path.join(os.path.abspath(os.path.dirname(__file__)), "Data", "stats.csv")
-    df = pd.read_csv(path_fichier)
-    df = df[df['nom'] == nom]
-    if not df.empty:
-        return df.iloc[0].to_dict()
-    else:
+    try:
+        df = pd.read_csv(path_fichier)
+        df = df[df['nom'] == nom]
+        if not df.empty:
+            return df.iloc[0].to_dict()
+        else:
+            return None
+    except pd.errors.EmptyDataError:
         return None
+    except FileNotFoundError:
+        raise FileNotFoundError("Il n'y a pas de fichier stats.csv dans le dossier Data. Il faut donc le recréer.")
 
 
 def crea_dico_dans_csv(dico_stats):
+    from modules import GUI
     """Créé un fichier csv avec les stats d'un joueur"""
-    path_fichier = os.path.join(os.path.abspath(os.path.dirname(__file__)), "Data", "stats.csv")
-    with open(path_fichier, 'a+', newline='') as write_obj:
-        if search_nom(dico_stats['nom']) is not None:
-            dict_writer = DictWriter(write_obj, fieldnames=(list(dico_stats.keys())))
-            dict_writer.writerow(dico_stats)
-        else:
-            dict_writer = DictWriter(write_obj, fieldnames=(list(dico_stats.keys())))
+    path_fichier = os.path.join(os.path.abspath(os.path.dirname(__file__)), "Data", "stats.csv")    # la path m'a l'air bonne
+    with open(path_fichier, 'w', newline='') as write_obj:
+        if search_nom(dico_stats['nom']) is not None:       # si le joueur est déjà dans le csv, on modifie ses stats
+            search_nom(dico_stats['nom']).update(dico_stats)
+        else:    # sinon, on crée une nouvelle ligne avec ses stats
+            dict_writer = csv.DictWriter(write_obj, fieldnames=dico_stats.keys())
+            # Vérifie si le fichier est vide
+            if os.path.getsize(path_fichier) == 0:
+                # Écrit l'en-tête pour la première fois
+                dict_writer.writeheader()
+            # Écris
             dict_writer.writerow(dico_stats)
 
 
@@ -73,5 +83,5 @@ def default():
         'nbr_tours_total': 0,
         'argent_total': 0,
         'gain_total': 0,
-        'premiere_entree': datetime.datetime.now()
+        'premiere_entree': datetime.date.today()
     }
