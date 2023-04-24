@@ -1,25 +1,32 @@
-import subprocess   # module par défaut de python, permet d'exécuter des commandes dans le terminal
+import subprocess
 
-
-def modules_check():
-    """Vérifie si les modules sont installés
-    :return: None
-    nécessite toutefois l'importation de subprocess"""
+try:
+    import colorama
+except ImportError:
     try:
+        print("colorama n'est pas installé, installation en cours...")
+        subprocess.check_call(["pip", "install", "pandas"])
         import colorama
-    except ImportError:
-        print(f"\"Des modules sont manquants, veuillez les installer pour pouvoir lancer le programme.")
-        response = input("Voulez-vous les installer maintenant ? (o/n) ")
-        if response.lower() == 'o':
-            print("Installation des modules...")
-            subprocess.run(['pip', 'install', 'colorama'])
-            print("Les modules sont installés, le programme peut maintenant s'exécuter correctement.\n"
-                  "Si il y a toujours des modules manquants, veuillez les installer manuellement. "
-                  "(pip install <nom du module>)")
-        else:
-            print(
-                "Les modules ne sont pas installés, le programme ne peut pas s'exécuter correctement. ")
-            exit()
+        print("colorama est installé !")
+    except subprocess.CalledProcessError:
+        print("Le module pip n'est pas présent !")
+        print("Vous pouvez faire [chemin de l'executable python] -m install colorama pour installer colorama")
+
+
+try:
+    import pandas
+except ImportError:
+    try:
+        print("pandas n'est pas installé, installation en cours...")
+        subprocess.check_call(["pip", "install", "pandas"])
+        import pandas
+        print("pandas est installé !")
+    except subprocess.CalledProcessError:
+        print("Le module pip n'est pas présent !")
+        print("Vous pouvez faire [chemin de l'executable python] -m install pandas pour installer pandas")
+
+
+from modules import roulette, stats, sim, GUI
 
 
 def roulette_menu():
@@ -35,11 +42,11 @@ def roulette_menu():
         choix = input("Veuillez sélectionner parmi (1/2/3/4) : \n")
 
         if choix == '1':  # SOLO, appelle la fonction solo() du module roulette
-            roulette.solo()  # appelle la fonction solo() du module roulette
+            roulette.session_solo()  # appelle la fonction solo() du module roulette
             break
 
         elif choix == '2':  # MULTI, appelle la fonction multi() du module roulette
-            roulette.multi()
+            roulette.session_multi()
             break
 
         elif choix == '3':  # REGLES, appelle la fonction regles() du module roulette
@@ -62,23 +69,19 @@ def statistiques_menu():
 
         GUI.header(couleur='CYAN', titre='STATISTIQUES')
 
-        GUI.options_listees('Stats solo', 'Stats multi', 'Retour')
+        GUI.options_listees('Voir les statistiques', 'Retour')
 
-        choix = input("Veuillez sélectionner parmi (1/2/3) : \n")
+        choix = input("Veuillez sélectionner parmi (1/2) : \n")
 
         if choix == '1':  # Stats du mode solo, appelle la fonction solo() du module stats
-            stats.solo()
+            stats.show()
             break
 
-        elif choix == '2':  # Stats du mode multi, appelle la fonction multi() du module stats
-            stats.multi()
-            break
-
-        elif choix == '3':  # Retour au menu roulette, appelle la fonction roulette_main()
+        elif choix == '2':  # Retour au menu roulette, appelle la fonction roulette_main()
             menu_principal()
             break
         else:  # mauvais input, on recommence (while True), pas de break
-            print('⚠    Seuls choix possibles sont (1/2/3) et non des lettres ou autres    ⚠')
+            print('⚠    Seuls choix possibles sont (1/2) et non des lettres ou autres    ⚠')
             GUI.attend()
 # fonction implémentée pour le menu principal ✅
 
@@ -144,8 +147,6 @@ def menu_principal():
 
 if __name__ == '__main__':
     print("Lancement du programme...")
-    modules_check()  # vérifie que les modules sont bien installés
-    from modules import roulette, stats, sim, GUI
+
     # respectivement pour les fonctions roulette_menu(), stats_menu(), simulation_menu() et les fonctions pour le GUI
     menu_principal()
-# condition pour lancer le programme, si on lance le fichier main.py, alors on lance la fonction main() ✅

@@ -1,127 +1,102 @@
 #   pour revenir au menu :
-from main import roulette_menu, menu_principal
-
-#   pour l'interface graphique
-from modules import GUI
-
-#   fonctions pour initialiser et datas
-from modules import data
+from main import menu_principal
 
 #   fonctions primaires du module roulette
-from modules import jeu
-
-#   pour le tirage aléatoire et les stats
-import datetime
+from modules import jeu, data, GUI
 
 
-# premiere fois que le logiciel est lancé
+def session_solo():
+    nom_joueur = jeu.nom('solo')
+    joueur = Joueur(nom_joueur)
+    joueur.entree()
+    print(f'{nom_joueur}... Enchanté !')
+    GUI.attend()
+    joueur.mise_max()
+    while True:
+        joueur.paris()
+        result_roulette = jeu.result_roulette()
+        joueur.resultats(result_roulette)
+        if not jeu.continuer(joueur.nom, joueur.argent):
+            break
+        data.crea_dico_dans_csv(joueur.stats())
+    GUI.attend()
+    menu_principal()
 
 
-def solo():
-    joueurs = {}
-    nom_joueur = data.nom()
+def session_multi():
+    joueurs = [Joueur(jeu.nom(index_jr)) for index_jr in range(1, jeu.nbr_joueur()+1)]  # liste des joueurs
+    joueurs_temp = joueurs
+    for joueur in joueurs:  # on initialise les joueurs
+        joueur.entree()
+        joueur.mise_max()
+    while joueurs:  # tant qu'il y a des joueurs, on continue la partie
+        for joueur in joueurs:
+            joueur.paris()
+        result = jeu.result_roulette()
+        for joueur in joueurs:
+            joueur.resultats(result)
+        joueurs = [joueur for joueur in joueurs if jeu.continuer(joueur.nom, joueur.argent)]
+    for joueur in joueurs_temp:     # on sauvegarde les stats de tous les joueurs
+        data.crea_dico_dans_csv(joueur.stats())
+    print("il n'y a à présent plus personne...")
+    GUI.attend(2)
+    print("à la prochaine !")
+    GUI.attend()
+    menu_principal()
 
-    if nom_joueur not in joueurs:
-        nouveau_joueur = Joueur(nom_joueur)
-        nouveau_joueur.entree()
-        print(f'{nom_joueur}... Enchanté !')
-        GUI.attend(1)
-        joueurs[nom_joueur] = nouveau_joueur
-        nouveau_joueur.mise_max()
-        while True:
-            nouveau_joueur.tour()
-            jeu.continuer(nouveau_joueur.argent, nouveau_joueur.nom)
-            if jeu.continuer(nouveau_joueur.argent, nouveau_joueur.nom):
-                nouveau_joueur.tour()
-            else:
-                print(nouveau_joueur.stats())
-                GUI.attend(2)
-                menu_principal()
-    else:
-        joueur_habitue = nom_joueur
-        joueur_habitue.entree()
-        print("Ah oui, c'est bien toi  !")
-        GUI.attend(1)
-        print("On fait comme d'habitude alors...")
-        joueur_habitue.mise_max()
-        joueur_habitue.debut()
-        while True:
-            joueur_habitue.tour()
 
-            jeu.continuer(joueur_habitue.argent, joueur_habitue.nom)
-            if jeu.continuer(joueur_habitue.argent, joueur_habitue.nom):
-                joueur_habitue.tour()
-            else:
-                print(joueur_habitue.stats())
-                GUI.attend(2)
-                menu_principal()
+def regles():
+    jeu.regles()
 
 
 class Joueur:
     def __init__(self, nom):
-        self.nom = nom
-        self.date = datetime.datetime.now()
-        self.num_entree = 0
-        self.num_tour = 0
-        self.mise_totale = 0
+        stats = data.search_nom(nom)
+        if stats is not None:
+            self.nom, self.num_entree, self.nbr_tour_total, self.argent_total, self.gain_total, self.premiere_entree = stats.values()
+        else:
+            self.nom, self.num_entree, self.nbr_tour_total, self.argent_total, self.gain_total, self.premiere_entree = data.default().values()
+            self.nom = nom
+        self.mise_tour = 0
         self.argent_debut = None
         self.argent = None
         self.resultat = None
-        self.pari = None
-        self.mise = None
+        self.pari = {}
         self.gain_tour = None
-        self.gain_session = None
+        self.re_parier = True
 
     def entree(self):
         self.num_entree = + 1
         pass
 
     def mise_max(self):
-        self.argent = data.mise_maximale(self.nom)
+        self.argent = jeu.mise_maximale(self.nom)
         pass
+
+    def paris(self):
+        self.argent_debut = self.argent
+        self.nbr_tour_total += 1
+        self.re_parier = True
+        while self.re_parier:
+            self.pari, self.argent = jeu.pari_choix(self.pari, self.argent, self.nom)
+            self.re_parier = jeu.re_parier(self.argent)
+        jeu.resume_pari(self.pari)
+
+    def resultats(self, resultat):
+        for choix in self.pari:
+            self.argent_total += self.pari[choix]
+            self.argent = jeu.passage_a_la_caisse(self.pari[choix], resultat, self.argent, choix)
+        self.pari = {}
+        self.gain_tour = self.argent - self.argent_debut
+        self.gain_total += self.gain_tour
+        GUI.attend()
 
     def stats(self):
         return {
             'nom': self.nom,
-            "nombre d'entrées": self.num_entree,
-            'argent moyen dépensé par session': self.mise_totale / self.num_entree,
-            'argent dépensé au total': self.mise_totale,
-            'mise moyenne par tour': self.mise_totale / self.num_tour,
-            'gain par session': self.gain_session,
+            'num_entree': self.num_entree,
+            'nbr_tours_total': self.nbr_tour_total,
+            'argent_total': self.argent_total,
+            'gain_total': self.gain_total,
+            'premiere_entree': self.premiere_entree
         }
-
-    def tour(self):
-        self.argent_debut = self.argent
-        self.num_tour = + 1
-        self.mise = jeu.mise(self.argent, self.nom)
-        self.mise_totale = self.mise_totale + self.mise
-        self.pari = jeu.pari_choix(["pair", "impair", "rouge", "noir", "nombre"])
-        print("Voulez vous parier sur autre chose ?")
-        if self.pari['type'] == "nombre":
-            self.pari = jeu.choix_nombre()
-        self.resultat = jeu.result_roulette()
-        GUI.attend(1)
-        self.argent = jeu.passage_a_la_caisse(self.pari, self.resultat, self.mise, self.argent)
-        self.gain_tour = self.argent - self.argent_debut
-        self.gain_session = self.gain_tour + self.gain_tour
-
-        GUI.attend(3)
-
-
-def multi():
-    return
-
-
-def regles():
-    GUI.clear_screen()
-
-    GUI.header('YELLOW', 'ROULETTE - REGLES')
-    GUI.body('YELLOW', '')
-    while True:  # choix des options
-        choix = input("Entrez 1 pour revenir en arrière: \n")  # input du choix
-        if choix != '1':
-            print('Tu ne peux mettre que 1...')  # si le choix n'est pas 1, on recommence (while True), pas de break
-        else:  # si le choix est 1, on retourne au menu roulette
-            roulette_menu()
-            break
-    return
